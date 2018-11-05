@@ -1,68 +1,107 @@
-/*
- * Creation & Computation - Digital Futures, OCAD University
- * Kate Hartman / Nick Puckett
- * 
- * Send 2 values to P5.js (it can send more if you want)
- * reads a sensor and sends the value out the Serial port
- * Uses a basic sending function to allow for multiple values to be sent
- * 
- * 
- */
+//Creation&Computation
+//reads 3 values from the orientation sensor
+//draws it as 3 dials
+//uses JSON as the language for sending the data
+//requires p5.serialcontrol to be running
+//run orientationtTop5.ino sketch on arduino
 
+var serial;       //variable to hold the serial port object
 
+var serialPortName = "/dev/cu.usbmodem1431";  //FOR PC it will be COMX on mac it will be something like "/dev/cu.usbmodemXXXX"
+                              //Look at P5 Serial to see the available ports
 
-long lastSend;                                               //used for the timer controlling the send rate
-int sendDelay = 20;                                         //ms between data sends. required for proper functionality
+var xAngle;                   //these variables hold the incoming orientation values
+var yAngle;      
+var zAngle;
 
-int potentiometer = A0;
-int potentiometer2 = A1;
-int sensorVals[2];                                          //array used to hold the sensor values
-                                                            //in this case it is initiated with [2] because there are
-                                                            //2 sensor values to send. If you need to send 5 values you
-                                                            //should iniate the array with [5]
-
-
-
-
-void setup() {
-
-Serial.begin(9600);                                         //turn on the Serial port @ 9600 baud, this is the default for the P5 server
-
-
+function setup() 
+{
+  
+  createCanvas(1023,1023);
+  angleMode(DEGREES);
+  //Setting up the serial port
+  serial = new p5.SerialPort();     //create the serial port object
+  serial.open(serialPortName); //open the serialport. determined 
+  serial.on('open',ardCon);         //open the socket connection and execute the ardCon callback
+  serial.on('data',dataReceived);   //when data is received execute the dataReceived function
 }
 
-void loop() {
+function draw() {
+  background(map(xAngle,0,365,0,255),map(yAngle,0,365,0,255),map(zAngle,0,365,0,255));
+  stroke(0);
+  strokeWeight(2);
+  
+////this draws the dials with the orientation sensor values
+  push();
+  translate(width/4,height/2);
+  fill(255);
+  ellipse(0,0,200,200);
+  textSize(30);
+  textAlign(CENTER,CENTER);
+  fill(0);
+  text('X',0,0);
+  text(''+xAngle,0,130);
+  rotate(-xAngle);
+  line(0,0,100,0);
+  fill(0);
+  ellipse(100,0,10,10);
+  pop();
 
-sensorVals[0] = analogRead(A0);                              //read the sensor values and put them into the array
-sensorVals[1] = analogRead(A1);
+  push();
+  translate(width/2,height/2);
+  fill(255);
+  ellipse(0,0,200,200);
+  textSize(30);
+  textAlign(CENTER,CENTER);
+  fill(0);
+  text('Y',0,0);
+  text(''+yAngle,0,130);
+  rotate(-yAngle);
+  line(0,0,100,0);
+  fill(0);
+  ellipse(100,0,10,10);
+  pop();
+
+  push();
+  translate(width/2+width/4,height/2);
+  fill(255);
+  ellipse(0,0,200,200);
+  textSize(30);
+  textAlign(CENTER,CENTER);
+  fill(0);
+  text('Z',0,0);
+  text(''+zAngle,0,130);
+  rotate(-zAngle);
+  line(0,0,100,0);
+  fill(0);
+  ellipse(100,0,10,10);
+  pop();
 
 
-
-sendData(sensorVals,(sizeof(sensorVals)/sizeof(int)), sendDelay);   //execute the sendData function
-                                                                    //(sizeof(sensorVals)/sizeof(int)) is used because we are passing an
-                                                                    //array into the function and arduino can't determine the size of the
-                                                                    //array in that scope
-
-
+  
+  
 }
 
 
-void sendData(int sVal[], int arLength, int sDel)           //this is the function that sends data out the Serial port
-{                                                           //the format is   "sensorvalue1,sensorvalue2,sensorvalue3,..."
-    if(millis()-lastSend>=sDel)                             //simple timer controls how often it sends
-    {
-      for(int i=0;i<arLength;i++)                           //for loop is used to package up all the values in the array
-      {
-        if(i<arLength-1)                                    //this checks what to do if it ISN'T the last value
-        {                                                   //it uses Serial.print and adds the comma to the string
-        Serial.print(sVal[i]);                                
-        Serial.print(",");
-        }
-          else
-          {
-          Serial.println(sVal[i]);                          //there is a different command for the final value
-          }                                                 //we use Serial.println because the server looks for the newline character to know the end of the messages
-      }                                                     //it also doesn't need the comma because it is the last value
-      lastSend = millis();                                  //save the time that the value is sent, so the timer will work   
-    } 
+function dataReceived()   //this function is called every time data is received
+{
+  
+    var rawData = serial.readStringUntil('\r\n'); //read the incoming string until it sees a newline
+    //console.log(rawData);                       //uncomment this line to see the incoming string in the console     
+    if(rawData.length>1)                          //check that there is something in the string
+    {                                               
+      xAngle = JSON.parse(rawData).oX;            //the name of parameter must match the one created in Arduino
+      xAngle = (xAngle<0) ? xAngle+365 : xAngle;  //check to see if the value is below 0 if so add 365 to keep all the values positive
+
+      yAngle = JSON.parse(rawData).oY;            //the name of parameter must match the one created in Arduino
+      yAngle = (yAngle<0) ? yAngle+365 : yAngle;  //check to see if the value is below 0 if so add 365 to keep all the values positive 
+      
+      zAngle = JSON.parse(rawData).oZ;            //the name of parameter must match the one created in Arduino
+      zAngle = (zAngle<0) ? zAngle+365 : zAngle;  //check to see if the value is below 0 if so add 365 to keep all the values positive  
+    }
+}
+
+function ardCon()
+{
+  console.log("connected to the arduino!! Listen UP");
 }
