@@ -33,8 +33,11 @@ function draw()
     background(sensorValue3,sensorValue4,sensorValue5);  
     
     push();
-    translate(width*0.8, height*0.5);
+    translate(width*0.5, height*0.5);
     rotate(frameCount / sensorValue1);
+    stroke(255,255,255);
+    strokeWeight(10);
+    noFill();
     polygon(0,0, sensorValue2, sensorValue0); 
     pop();
 }
