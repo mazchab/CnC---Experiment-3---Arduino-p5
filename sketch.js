@@ -6,26 +6,25 @@
 //requires p5.serialcontrol to be running
 //and arduino running the SerialInput_1button_1ana sketch
 
-var serial;       //variable to hold the serial port object
-
-
-var sensorValue0;      //this variable will hold the value from "s1"
-var sensorValue1;      //this variable will hold the value from "s2"
-var sensorValue2;
-var sensorValue3;
-var sensorValue4;
-var sensorValue5;
+var sensorValue0;      //s0
+var sensorValue1;      //s1
+var sensorValue2;      //s2
+var sensorValue3;      //s3
+var sensorValue4;      //s4
+var sensorValue5;      //s5
 
 var serialPortName = "/dev/cu.usbmodem1421";  //FOR PC it will be COMX on mac it will be something like "/dev/cu.usbmodemXXXX"
-                              //Look at P5 Serial to see the available ports
-function setup() {
-  
+                             
+function setup() 
+{
   createCanvas(windowWidth, windowHeight);
-  //Setting up the serial port
+    
+     
   serial = new p5.SerialPort();     //create the serial port object
   serial.open(serialPortName); //open the serialport. determined 
   serial.on('open',ardCon);         //open the socket connection and execute the ardCon callback
   serial.on('data',dataReceived);   //when data is received execute the dataReceived function
+      
 }
 
 function draw() 
@@ -38,14 +37,16 @@ function draw()
     stroke(255,255,255);
     strokeWeight(10);
     noFill();
-    polygon(0,0, sensorValue2, sensorValue0); 
+    polygon(0,0, sensorValue2, sensorValue0/3); 
     pop();
 }
 
-function polygon(x, y, radius, npoints) {
+function polygon(x, y, radius, npoints) 
+{
   var angle = TWO_PI / npoints;
   beginShape();
-  for (var a = 0; a < TWO_PI; a += angle) {
+  for (var a = 0; a < TWO_PI; a += angle) 
+  {
     var sx = x + cos(a) * radius;
     var sy = y + sin(a) * radius;
     vertex(sx, sy);
@@ -69,13 +70,10 @@ var rawData = serial.readStringUntil('\r\n'); //read the incoming string until i
     sensorValue3 = JSON.parse(rawData).s3;
     sensorValue4 = JSON.parse(rawData).s4;
     sensorValue5 = JSON.parse(rawData).s5;
-    distance = JSON.parse(rawData).s6;
     }
 }
-
+    
 function ardCon()
 {
   console.log("connected to the arduino!! Listen UP");
 }
-
-
