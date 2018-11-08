@@ -34,7 +34,7 @@ function draw()
     
     push();
     translate(width*0.5, height*0.5);
-    rotate(frameCount / sensorValue1);
+    rotate(sensorValue1/10);
     stroke(255,255,255);
     strokeWeight(10);
     noFill();
@@ -69,6 +69,7 @@ var rawData = serial.readStringUntil('\r\n'); //read the incoming string until i
     sensorValue3 = JSON.parse(rawData).s3;
     sensorValue4 = JSON.parse(rawData).s4;
     sensorValue5 = JSON.parse(rawData).s5;
+    distance = JSON.parse(rawData).s6;
     }
 }
 
