@@ -10,7 +10,7 @@ int sendRate = 50;
  void setup() 
  {
   Serial.begin(9600);    // configure the serial connection:
-
+  pinMode(A0, INPUT_PULLUP);
   strip.begin();
   strip.show();
  }
@@ -21,14 +21,14 @@ int sendRate = 50;
  
 void loop() 
 {
-   int sensorValue0 = map(analogRead(A0),0,1023,0,100); //potentiometer1
-   int sensorValue1 = map(analogRead(A1),0,1023,0,100); //potentiometer2
+   int sensorValue0 = map(analogRead(A0),0,1023,0,101)/2; //potentiometer1
+   int sensorValue1 = map(analogRead(A1),0,1023,0,101); //potentiometer2
    int sensorValue2 = map(analogRead(A2),0,1023,0,800); //potentiometer3
    int sensorValue3 = map(analogRead(A3),0,1023,0,255); //slider1
    int sensorValue4 = map(analogRead(A4),0,1023,0,255); //slider2
    int sensorValue5 = map(analogRead(A5),0,1023,0,255); //slider3
 
-   strip.setPixelColor(0, sensorValue3, sensorValue4, sensorValue5);
+  strip.setPixelColor(0, sensorValue3, sensorValue4, sensorValue5);
   strip.setPixelColor(1, sensorValue3, sensorValue4, sensorValue5);
   strip.setPixelColor(2, sensorValue3, sensorValue4, sensorValue5);
   strip.setPixelColor(3, sensorValue3, sensorValue4, sensorValue5);
@@ -67,7 +67,7 @@ void loop()
   p5Send.printTo(Serial);                                 //print JSON object as a string
   Serial.println();                                       //print a \n character to the serial port to distinguish between objects
 
-  delay(10);
+  delay(50);
 lastSend = millis();
 }  
 

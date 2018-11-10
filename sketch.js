@@ -13,13 +13,13 @@ var sensorValue3;      //s3
 var sensorValue4;      //s4
 var sensorValue5;      //s5
 
-var serialPortName = "/dev/cu.usbmodem1421";  //FOR PC it will be COMX on mac it will be something like "/dev/cu.usbmodemXXXX"
-                             
+var serialPortName = "/dev/cu.usbmodem1411";  //FOR PC it will be COMX on mac it will be something like "/dev/cu.usbmodemXXXX"
+
+
 function setup() 
 {
   createCanvas(windowWidth, windowHeight);
-    
-     
+  
   serial = new p5.SerialPort();     //create the serial port object
   serial.open(serialPortName); //open the serialport. determined 
   serial.on('open',ardCon);         //open the socket connection and execute the ardCon callback
@@ -31,14 +31,18 @@ function draw()
 {  
     background(sensorValue3,sensorValue4,sensorValue5);  
     
+ 
+    
     push();
     translate(width*0.5, height*0.5);
     rotate(sensorValue1/10);
     stroke(255,255,255);
-    strokeWeight(10);
+    strokeWeight(15);
     noFill();
     polygon(0,0, sensorValue2, sensorValue0/3); 
     pop();
+    
+    
 }
 
 function polygon(x, y, radius, npoints) 
@@ -60,7 +64,7 @@ function dataReceived()   //this function is called every time data is received
 {
   
 var rawData = serial.readStringUntil('\r\n'); //read the incoming string until it sees a newline
-    console.log(rawData);                   //uncomment this line to see the incoming string in the console     
+    //console.log(rawData);                   //uncomment this line to see the incoming string in the console     
     if(rawData.length>1)                      //check that there is something in the string
     {                                         
       
@@ -77,3 +81,4 @@ function ardCon()
 {
   console.log("connected to the arduino!! Listen UP");
 }
+
